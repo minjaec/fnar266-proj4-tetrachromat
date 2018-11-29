@@ -47,8 +47,7 @@
         };
 
         function onclick(event) {
-            event.clientX;
-            console.log(event.clientX);
+            showImage('SOTA_P_2011_005.002.O.jpg');
             gradientsShuffled = false;
             dt = 0;
             G.forEach(updateGradientParams);
@@ -106,12 +105,14 @@
         };
 
         var imageDisplayed = false;
-        var img = new Image;
-        img.onload = function () {
+        var img;
+
+        function showImage(fileName) {
+            img = new Image;
+            img.onload = function () {
             imageDisplayed = true;
             var colorthief = new ColorThief();
             var colorthief_palette = colorthief.getPalette(img, 4);
-
             /* Turn color-thief palette to nearest-color-compatible palette. */
             for (var i = 0; i < colorthief_palette.length; i++) {
                 var r = colorthief_palette[i][0];
@@ -120,7 +121,8 @@
                 imagePalette.push([['rgba('+r+','+g+','+b+','+0+')', 'rgba('+r+','+g+','+b+','+1+')']]);
             }
         }
-        img.src = 'images/0241-Untitled-Fold.jpg';
+        img.src = 'images/' + fileName;
+        };
 
         //FOR WHEN nColors = 4
         var defaultColors = [['rgba(1,159,98,1)', 'rgba(1,159,98,0)'],
