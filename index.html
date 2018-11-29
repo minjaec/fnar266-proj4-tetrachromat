@@ -117,8 +117,8 @@
                 var r = colorthief_palette[i][0];
                 var g = colorthief_palette[i][1];
                 var b = colorthief_palette[i][2];
-                var o = { r: r, g: g, b: b };
-                console.log(o);
+                imagePalette.push('rgba('+r+','+g+','+b+','+0+')');
+                imagePalette.push('rgba('+r+','+g+','+b+','+1+')');
             }
         }
         img.src = 'images/0241-Untitled-Fold.jpg';
@@ -129,10 +129,14 @@
         ['rgba(0,201,255,1)', 'rgba(0,201,255,0)'],
         ['rgba(228,199,0,1)', 'rgba(228,199,0,0)']];
 
+        var imagePalette = [];
+
         function getColor(index) {
             //index  0 to 3
             if (imageDisplayed) {
+                return imagePalette[index];
             } else {
+                imagePalette = [];
                 return defaultColors[index];
             }
         };
@@ -171,7 +175,6 @@
 
             renderContent();
             ctx.drawImage(img, 200, 200, 200, 200);
-
         };
 
         function renderContent() {
