@@ -36,6 +36,7 @@
         var maxDist = 0;
         var gradientsShuffled = false;
         var nColors = 4;
+        var colorThief = new ColorThief();
 
         function resizeCanvas() {
             c.width = window.innerWidth;
@@ -54,10 +55,10 @@
         };
 
         var mouse = { x: 0, y: 0 }; //mouse.x, mouse.y
-        var g1 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
-        var g2 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
-        var g3 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
-        var g4 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
+        var g1 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0, trig: null };
+        var g2 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0, trig: null };
+        var g3 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0, trig: null };
+        var g4 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0, trig: null };
         var G = [g1, g2, g3, g4];
 
         function mousemove(event) {
@@ -70,8 +71,8 @@
 
         function followMouse(g) {
             //1. find distance X , distance Y
-            var distX = mouse.x - g.x + g.dx + g.sx * randomTrig()(dt) * g.r;
-            var distY = mouse.y - g.y + g.dy + g.sy * randomTrig()(dt) * g.r;
+            var distX = mouse.x - g.x + g.dx + g.sx * g.trig(dt) * g.r;
+            var distY = mouse.y - g.y + g.dy + g.sy * g.trig(dt) * g.r;
             //Easing motion
             g.x += distX / inertiaFactor;
             g.y += distY / inertiaFactor;
@@ -100,9 +101,27 @@
             g.r = randomOffset(maxDist, maxDist / 3);
             g.sx = randomSign() * movementCoefficient;
             g.sy = randomSign() * movementCoefficient;
+            g.trig = randomTrig();
+            g.trig = randomTrig();
         };
 
         var imageDisplayed = false;
+        var img = new Image;
+        img.onload = function () {
+            imageDisplayed = true;
+            var colorthief = new ColorThief();
+            var colorthief_palette = colorthief.getPalette(img, 4);
+
+            /* Turn color-thief palette to nearest-color-compatible palette. */
+            for (var i = 0; i < colorthief_palette.length; i++) {
+                var r = colorthief_palette[i][0];
+                var g = colorthief_palette[i][1];
+                var b = colorthief_palette[i][2];
+                var o = { r: r, g: g, b: b };
+                console.log(o);
+            }
+        }
+        img.src = 'images/0241-Untitled-Fold.jpg';
 
         //FOR WHEN nColors = 4
         var defaultColors = [['rgba(1,159,98,1)', 'rgba(1,159,98,0)'],
@@ -113,7 +132,6 @@
         function getColor(index) {
             //index  0 to 3
             if (imageDisplayed) {
-
             } else {
                 return defaultColors[index];
             }
@@ -124,7 +142,6 @@
 
         function draw() {
             ctx.clearRect(0, 0, c.width, c.height);
-
             //context.createRadialGradient(x0,y0,r0,x1,y1,r1);
             G.forEach(followMouse);
             dt += 0.03;
@@ -153,6 +170,8 @@
             })
 
             renderContent();
+            ctx.drawImage(img, 200, 200, 200, 200);
+
         };
 
         function renderContent() {
@@ -184,17 +203,17 @@
             }
         };
 
-/**
- * Returns a number whose value is limited to the given range.
- *
- * Example: limit the output of this computation to between 0 and 255
- * (x * 255).clamp(0, 255)
- *
- * @param {Number} min The lower boundary of the output range
- * @param {Number} max The upper boundary of the output range
- * @returns A number in the range [min, max]
- * @type Number
- */
+        /**
+         * Returns a number whose value is limited to the given range.
+         *
+         * Example: limit the output of this computation to between 0 and 255
+         * (x * 255).clamp(0, 255)
+         *
+         * @param {Number} min The lower boundary of the output range
+         * @param {Number} max The upper boundary of the output range
+         * @returns A number in the range [min, max]
+         * @type Number
+         */
         Number.prototype.clamp = function (min, max) {
             return Math.min(Math.max(this, min), max);
         };
