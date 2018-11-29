@@ -26,6 +26,7 @@
 <body onload="resizeCanvas()">
     <canvas id="bgcanvas"></canvas>
     <script src="js/color-thief.min.js"></script>
+    <script type="text/javascript" src="imageData.js"></script>
     <script>
         var c = document.querySelector("#bgcanvas");
         var ctx = c.getContext('2d');
@@ -45,11 +46,15 @@
             c.dispatchEvent(new MouseEvent('mousemove'));
         };
 
+        var currentImage = 0;
+
         function onclick(event) {
-            showImage('SOTA_P_2011_005.002.O.jpg');
-            gradientsShuffled = false;
+            loadImage(imageData[currentImage]['filename']);
+            currentImage++;
             dt = 0;
             G.forEach(updateGradientParams);
+            gradientsShuffled = false;
+            imageDisplayed = true;
         };
 
         var mouse = { x: 0, y: 0 }; //mouse.x, mouse.y
@@ -87,6 +92,7 @@
                 return Math.cos;
             };
         };
+
         function randomOffset(center, alpha) {
             return center + alpha * 2 * (0.5 - Math.random());
         };
@@ -106,11 +112,12 @@
         var imageDisplayed = false;
         var img;
 
-        function showImage(fileName) {
+        function loadImage(fileName) {
             img = new Image;
             img.onload = function () {
                 var colorthief = new ColorThief();
                 var colorthief_palette = colorthief.getPalette(img, 4);
+                imagePalette = [];
                 /* Turn color-thief palette to nearest-color-compatible palette. */
                 for (var i = 0; i < colorthief_palette.length; i++) {
                     var r = colorthief_palette[i][0];
@@ -119,7 +126,6 @@
                     var colors = ['rgba(' + r + ',' + g + ',' + b + ',' + 1 + ')', 'rgba(' + r + ',' + g + ',' + b + ',' + 0 + ')'];
                     imagePalette.push(colors);
                 }
-                imageDisplayed = true;
             }
             img.src = 'images/' + fileName;
         };
@@ -141,6 +147,37 @@
                 return defaultColors[index];
             }
         };
+
+        document.onkeydown = checkKey;
+        function checkKey(e) {
+            e = e || window.event;
+            if (e.keyCode == '38') {
+                // up arrow
+            }
+            else if (e.keyCode == '40') {
+                // down arrow
+                imageDisplayed = false;
+            }
+            else if (e.keyCode == '37') {
+                // left arrow
+                loadImage(imageData[currentImage]['filename']);
+                currentImage--;
+                dt = 0;
+                G.forEach(updateGradientParams);
+                gradientsShuffled = false;
+                imageDisplayed = true;
+            }
+            else if (e.keyCode == '39') {
+                // right arrow
+                loadImage(imageData[currentImage]['filename']);
+                currentImage++;
+                dt = 0;
+                G.forEach(updateGradientParams);
+                gradientsShuffled = false;
+                imageDisplayed = true;
+            }
+
+        }
 
         var dt = 0;
         setInterval(draw, 30)
@@ -174,9 +211,20 @@
                 ctx.fillRect(0, 0, c.width, c.height);
             })
 
-            renderContent();
-            if(imageDisplayed) ctx.drawImage(img, 200, 200, 200, 200);
+            if (imageDisplayed) renderArtwork();
+            else renderContent();
         };
+
+        function renderArtwork() {
+            ctx.drawImage(img, 200, 200, 200, 200);
+            var title = imageData[currentImage]['title'];
+            var description = imageData[currentImage]['description'];
+
+            ctx.font = getFont(700, 0.2, 18, 24);
+            ctx.fillText(title, c.width / 2, c.height - result*3);
+            ctx.font = getFont(300, 0.2, 18, 24);
+            ctx.fillText(description, c.width / 2, c.height - result*2);
+        }
 
         function renderContent() {
             //render page content
