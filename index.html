@@ -109,7 +109,6 @@
         function showImage(fileName) {
             img = new Image;
             img.onload = function () {
-                imageDisplayed = true;
                 var colorthief = new ColorThief();
                 var colorthief_palette = colorthief.getPalette(img, 4);
                 /* Turn color-thief palette to nearest-color-compatible palette. */
@@ -119,6 +118,7 @@
                     var b = colorthief_palette[i][2];
                     imagePalette.push([['rgba(' + r + ',' + g + ',' + b + ',' + 1 + ')', 'rgba(' + r + ',' + g + ',' + b + ',' + 0 + ')']]);
                 }
+                imageDisplayed = true;
             }
             img.src = 'images/' + fileName;
         };
