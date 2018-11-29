@@ -35,26 +35,29 @@
         c.addEventListener('click', onclick, false);
         var maxDist = 0;
         var gradientsShuffled = false;
+        var nColors = 4;
 
         function resizeCanvas() {
             c.width = window.innerWidth;
             c.height = window.innerHeight;
             maxDist = Math.max(c.width, c.height);
-            gradientsShuffled = false;
             G.forEach(updateGradientParams);
             c.dispatchEvent(new MouseEvent('mousemove'));
         };
 
         function onclick(event) {
+            event.clientX;
+            console.log(event.clientX);
             gradientsShuffled = false;
+            dt = 0;
             G.forEach(updateGradientParams);
         };
 
         var mouse = { x: 0, y: 0 }; //mouse.x, mouse.y
-        var g1 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 };
-        var g2 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 }; 
-        var g3 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 };
-        var g4 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 };
+        var g1 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
+        var g2 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
+        var g3 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
+        var g4 = { x: 0, y: 0, dx: 0, dy: 0, r: 0, sx: 0, sy: 0 };
         var G = [g1, g2, g3, g4];
 
         function mousemove(event) {
@@ -62,55 +65,80 @@
             mouse.y = event.clientY;
         };
 
-        setInterval(draw, 30)
-
         var inertiaFactor = 20;
         var fillOrder = [];
 
         function followMouse(g) {
             //1. find distance X , distance Y
-            var distX = mouse.x - g.x + g.dx;
-            var distY = mouse.y - g.y + g.dy;
+            var distX = mouse.x - g.x + g.dx + g.sx * randomTrig()(dt) * g.r;
+            var distY = mouse.y - g.y + g.dy + g.sy * randomTrig()(dt) * g.r;
             //Easing motion
             g.x += distX / inertiaFactor;
             g.y += distY / inertiaFactor;
-        }
+        };
 
+        function randomSign() {
+            return Math.sign(0.5 - Math.random());
+        };
+
+        function randomTrig() {
+            if (Math.random() < 0.5) {
+                return Math.sin;
+            } else {
+                return Math.cos;
+            };
+        };
         function randomOffset(center, alpha) {
             return center + alpha * 2 * (0.5 - Math.random());
         };
+
+        var movementCoefficient = 0.2;
 
         function updateGradientParams(g) {
             g.dx = randomOffset(0, maxDist / 4);
             g.dy = randomOffset(0, maxDist / 4);
             g.r = randomOffset(maxDist, maxDist / 3);
+            g.sx = randomSign() * movementCoefficient;
+            g.sy = randomSign() * movementCoefficient;
         };
+
+        var imageDisplayed = false;
+
+        //FOR WHEN nColors = 4
+        var defaultColors = [['rgba(1,159,98,1)', 'rgba(1,159,98,0)'],
+        ['rgba(255,1,136,1)', 'rgba(255,1,136,0)'],
+        ['rgba(0,201,255,1)', 'rgba(0,201,255,0)'],
+        ['rgba(228,199,0,1)', 'rgba(228,199,0,0)']];
+
+        function getColor(index) {
+            //index  0 to 3
+            if (imageDisplayed) {
+
+            } else {
+                return defaultColors[index];
+            }
+        };
+
+        var dt = 0;
+        setInterval(draw, 30)
 
         function draw() {
             ctx.clearRect(0, 0, c.width, c.height);
 
             //context.createRadialGradient(x0,y0,r0,x1,y1,r1);
             G.forEach(followMouse);
+            dt += 0.03;
+            var gradients = [];
 
-            var radgrad1 = ctx.createRadialGradient(g1.x, g1.y, 1, g1.x, g1.y, g1.r);
-            radgrad1.addColorStop(0, '#A7D30C');
-            radgrad1.addColorStop(1, 'rgba(1,159,98,0)');
+            var i;
+            for (i = 0; i < nColors; i++) {
+                var radgrad = ctx.createRadialGradient(G[i].x, G[i].y, 1, G[i].x, G[i].y, G[i].r);
+                radgrad.addColorStop(0, getColor(i)[0]);
+                radgrad.addColorStop(1, getColor(i)[1]);
+                gradients.push(radgrad)
+            };
 
-            var radgrad2 = ctx.createRadialGradient(g2.x, g2.y, 1, g2.x, g2.y, g2.r);
-            radgrad2.addColorStop(0, '#FF5F98');
-            radgrad2.addColorStop(1, 'rgba(255,1,136,0)');
-
-            var radgrad3 = ctx.createRadialGradient(g3.x, g3.y, 1, g3.x, g3.y, g3.r);
-            radgrad3.addColorStop(0, '#00C9FF');
-            radgrad3.addColorStop(1, 'rgba(0,201,255,0)');
-
-            var radgrad4 = ctx.createRadialGradient(g4.x, g4.y, 1, g4.x, g4.y, g4.r);
-            radgrad4.addColorStop(0, '#F4F201');
-            radgrad4.addColorStop(1, 'rgba(228,199,0,0)');
-
-            var gradients = [radgrad1, radgrad2, radgrad3, radgrad4];
-
-            if(!gradientsShuffled) {
+            if (!gradientsShuffled) {
                 var i;
                 for (i = 0; i < gradients.length; i++) {
                     fillOrder[i] = i;
@@ -119,15 +147,34 @@
                 gradientsShuffled = true;
             }
 
-            fillOrder.forEach(function(item) {
+            fillOrder.forEach(function (item) {
                 ctx.fillStyle = gradients[item];
                 ctx.fillRect(0, 0, c.width, c.height);
             })
 
-            ctx.font = "300 48px Muli";
+            renderContent();
+        };
+
+        function renderContent() {
+            //render page content
+            ctx.font = getFont(300, 1);
             ctx.textAlign = "center";
             ctx.fillText("tetrachromat", c.width / 2, c.height / 2);
-        };
+            ctx.font = getFont(300, 0.5);
+            ctx.fillText("tauba auerbach", c.width / 2, c.height / 2 + result * 1.2);
+            ctx.font = getFont(700, 0.2);
+            ctx.fillText("BERGEN KUNSTHALL", c.width / 2, c.height - result);
+        }
+
+        var fontBase = 1000, fontSize = 70, result;
+            
+
+        function getFont(weight, scaleFactor) {
+            var ratio = fontSize / fontBase;   // calc ratio
+            var size = c.width * ratio * scaleFactor;   // get font size based on current width
+            result = size;
+            return (weight) + ' ' + (size | 0) + 'px Muli'; // set font
+        }
 
         function shuffleArray(array) {
             for (var i = array.length - 1; i > 0; i--) {
