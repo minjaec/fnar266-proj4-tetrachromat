@@ -110,18 +110,18 @@
         function showImage(fileName) {
             img = new Image;
             img.onload = function () {
-            imageDisplayed = true;
-            var colorthief = new ColorThief();
-            var colorthief_palette = colorthief.getPalette(img, 4);
-            /* Turn color-thief palette to nearest-color-compatible palette. */
-            for (var i = 0; i < colorthief_palette.length; i++) {
-                var r = colorthief_palette[i][0];
-                var g = colorthief_palette[i][1];
-                var b = colorthief_palette[i][2];
-                imagePalette.push([['rgba('+r+','+g+','+b+','+0+')', 'rgba('+r+','+g+','+b+','+1+')']]);
+                imageDisplayed = true;
+                var colorthief = new ColorThief();
+                var colorthief_palette = colorthief.getPalette(img, 4);
+                /* Turn color-thief palette to nearest-color-compatible palette. */
+                for (var i = 0; i < colorthief_palette.length; i++) {
+                    var r = colorthief_palette[i][0];
+                    var g = colorthief_palette[i][1];
+                    var b = colorthief_palette[i][2];
+                    imagePalette.push([['rgba(' + r + ',' + g + ',' + b + ',' + 0 + ')', 'rgba(' + r + ',' + g + ',' + b + ',' + 1 + ')']]);
+                }
             }
-        }
-        img.src = 'images/' + fileName;
+            img.src = 'images/' + fileName;
         };
 
         //FOR WHEN nColors = 4
