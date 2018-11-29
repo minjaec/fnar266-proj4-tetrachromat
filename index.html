@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>tetrachromat</title>
+</head>
+
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Muli:300,400,700');
+
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        border: 0;
+        overflow: hidden;
+        /*  Disable scrollbars */
+        display: block;
+        /* No floating content on sides */
+        font-family: 'Muli', sans-serif;
+    }
+</style>
+
+<body onload="resizeCanvas()">
+    <canvas id="bgcanvas"></canvas>
+    <script src="js/color-thief.min.js"></script>
+    <script>
+        var c = document.querySelector("#bgcanvas");
+        var ctx = c.getContext('2d');
+        window.addEventListener('resize', resizeCanvas, false);
+        c.addEventListener('mouseenter', mousemove, false);
+        c.addEventListener('mousemove', mousemove, false);
+        c.addEventListener('click', onclick, false);
+        var maxDist = 0;
+        var gradientsShuffled = false;
+
+        function resizeCanvas() {
+            c.width = window.innerWidth;
+            c.height = window.innerHeight;
+            maxDist = Math.max(c.width, c.height);
+            gradientsShuffled = false;
+            G.forEach(updateGradientParams);
+            c.dispatchEvent(new MouseEvent('mousemove'));
+        };
+
+        function onclick(event) {
+            gradientsShuffled = false;
+            G.forEach(updateGradientParams);
+        };
+
+        var mouse = { x: 0, y: 0 }; //mouse.x, mouse.y
+        var g1 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 };
+        var g2 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 }; 
+        var g3 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 };
+        var g4 = { x: 0, y: 0, dx: 0, dy: 0, r: 0 };
+        var G = [g1, g2, g3, g4];
+
+        function mousemove(event) {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        };
+
+        setInterval(draw, 30)
+
+        var inertiaFactor = 20;
+        var fillOrder = [];
+
+        function followMouse(g) {
+            //1. find distance X , distance Y
+            var distX = mouse.x - g.x + g.dx;
+            var distY = mouse.y - g.y + g.dy;
+            //Easing motion
+            g.x += distX / inertiaFactor;
+            g.y += distY / inertiaFactor;
+        }
+
+        function randomOffset(center, alpha) {
+            return center + alpha * 2 * (0.5 - Math.random());
+        };
+
+        function updateGradientParams(g) {
+            g.dx = randomOffset(0, maxDist / 4);
+            g.dy = randomOffset(0, maxDist / 4);
+            g.r = randomOffset(maxDist, maxDist / 3);
+        };
+
+        function draw() {
+            ctx.clearRect(0, 0, c.width, c.height);
+
+            //context.createRadialGradient(x0,y0,r0,x1,y1,r1);
+            G.forEach(followMouse);
+
+            var radgrad1 = ctx.createRadialGradient(g1.x, g1.y, 1, g1.x, g1.y, g1.r);
+            radgrad1.addColorStop(0, '#A7D30C');
+            radgrad1.addColorStop(1, 'rgba(1,159,98,0)');
+
+            var radgrad2 = ctx.createRadialGradient(g2.x, g2.y, 1, g2.x, g2.y, g2.r);
+            radgrad2.addColorStop(0, '#FF5F98');
+            radgrad2.addColorStop(1, 'rgba(255,1,136,0)');
+
+            var radgrad3 = ctx.createRadialGradient(g3.x, g3.y, 1, g3.x, g3.y, g3.r);
+            radgrad3.addColorStop(0, '#00C9FF');
+            radgrad3.addColorStop(1, 'rgba(0,201,255,0)');
+
+            var radgrad4 = ctx.createRadialGradient(g4.x, g4.y, 1, g4.x, g4.y, g4.r);
+            radgrad4.addColorStop(0, '#F4F201');
+            radgrad4.addColorStop(1, 'rgba(228,199,0,0)');
+
+            var gradients = [radgrad1, radgrad2, radgrad3, radgrad4];
+
+            if(!gradientsShuffled) {
+                var i;
+                for (i = 0; i < gradients.length; i++) {
+                    fillOrder[i] = i;
+                }
+                shuffleArray(fillOrder);
+                gradientsShuffled = true;
+            }
+
+            fillOrder.forEach(function(item) {
+                ctx.fillStyle = gradients[item];
+                ctx.fillRect(0, 0, c.width, c.height);
+            })
+
+            ctx.font = "300 48px Muli";
+            ctx.textAlign = "center";
+            ctx.fillText("tetrachromat", c.width / 2, c.height / 2);
+        };
+
+        function shuffleArray(array) {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        };
+
+    </script>
+</body>
+
+</html>
