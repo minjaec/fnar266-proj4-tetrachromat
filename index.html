@@ -36,7 +36,6 @@
         var maxDist = 0;
         var gradientsShuffled = false;
         var nColors = 4;
-        var colorThief = new ColorThief();
 
         function resizeCanvas() {
             c.width = window.innerWidth;
@@ -118,7 +117,7 @@
                     var r = colorthief_palette[i][0];
                     var g = colorthief_palette[i][1];
                     var b = colorthief_palette[i][2];
-                    imagePalette.push([['rgba(' + r + ',' + g + ',' + b + ',' + 0 + ')', 'rgba(' + r + ',' + g + ',' + b + ',' + 1 + ')']]);
+                    imagePalette.push([['rgba(' + r + ',' + g + ',' + b + ',' + 1 + ')', 'rgba(' + r + ',' + g + ',' + b + ',' + 0 + ')']]);
                 }
             }
             img.src = 'images/' + fileName;
