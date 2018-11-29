@@ -175,7 +175,7 @@
             })
 
             renderContent();
-            ctx.drawImage(img, 200, 200, 200, 200);
+            if(imageDisplayed) ctx.drawImage(img, 200, 200, 200, 200);
         };
 
         function renderContent() {
