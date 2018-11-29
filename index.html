@@ -21,19 +21,51 @@
         /* No floating content on sides */
         font-family: 'Muli', sans-serif;
     }
+    #text-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 100vw;
+        pointer-events: none;
+    }
+    #main-text {
+        font-size: 30px;
+        margin: 50vh auto;
+        position: fixed;
+        pointer-events: all;
+    }
+
+    #main-text :hover {
+        color: red;
+    }
 </style>
 
 <body onload="resizeCanvas()">
     <canvas id="bgcanvas"></canvas>
+    <div id="text-container">
+        <div id="main-text">Test Text</div>
+    </div>
     <script src="js/color-thief.min.js"></script>
-    <script type="text/javascript" src="imageData.js"></script>
+    <script type="text/javascript" src="imageData_artworks.js"></script>
     <script>
         var c = document.querySelector("#bgcanvas");
+        var textDOM = document.querySelector("#main-text");
+        var textContainerDOM = document.querySelector("#text-container");
         var ctx = c.getContext('2d');
         window.addEventListener('resize', resizeCanvas, false);
         c.addEventListener('mouseenter', mousemove, false);
         c.addEventListener('mousemove', mousemove, false);
         c.addEventListener('click', onclick, false);
+        textDOM.addEventListener('click', handleTextClick, false);
+        textContainerDOM.addEventListener('click', console.log)
+
+
+        function handleTextClick(event) {
+            console.log(event)
+            textDOM.style.background = 'red';
+        }
+
         var maxDist = 0;
         var gradientsShuffled = false;
         var nColors = 4;
@@ -116,7 +148,7 @@
             img = new Image;
             img.onload = function () {
                 var colorthief = new ColorThief();
-                var colorthief_palette = colorthief.getPalette(img, 4);
+                var colorthief_palette = colorthief.getPalette(img, nColors);
                 imagePalette = [];
                 /* Turn color-thief palette to nearest-color-compatible palette. */
                 for (var i = 0; i < colorthief_palette.length; i++) {
@@ -180,7 +212,7 @@
         }
 
         var dt = 0;
-        setInterval(draw, 30)
+        setInterval(draw, 30);
 
         function draw() {
             ctx.clearRect(0, 0, c.width, c.height);
