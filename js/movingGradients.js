@@ -5,6 +5,7 @@ var movementCoefficient = 0.2;
 var drawInterval = 30;
 var movementOffsetFactor = 1;
 var timeScaleFactor = 0.03;
+var resizeCheckInterval = 1000;
 
 //global variables for moving gradients
 var maxDist = 0;
@@ -17,6 +18,7 @@ var useImagePalette = false;
 var gradientContext;
 var gradientElement;
 var initialized = false;
+var resized = false;
 
 //RGBY FOR WHEN nColors = 4
 var defaultColors = [['rgba(1,159,98,1)', 'rgba(1,159,98,0)'], ['rgba(255,1,136,1)', 'rgba(255,1,136,0)'], ['rgba(0,201,255,1)', 'rgba(0,201,255,0)'], ['rgba(228,199,0,1)', 'rgba(228,199,0,0)']];
@@ -37,7 +39,11 @@ function updateMovingGradients() {
     G.forEach(updateGradientParams);
     gradientsShuffled = false;
     dt = 0;
-}
+};
+
+function resizeCanvas() {
+    resized = true;
+};
 
 function updateGradientParams(g) {
     g.dx = randomOffset(0, maxDist / 4);
@@ -47,6 +53,21 @@ function updateGradientParams(g) {
     g.sy = randomSign() * movementCoefficient;
     g.trig = randomTrig();
     g.trig = randomTrig();
+};
+
+function updateGradientParamsOnResize() {
+    if(resized) {
+        gradientElement.width = window.innerWidth;
+        gradientElement.height = window.innerHeight;
+        maxDist = Math.max(gradientElement.width, gradientElement.height);
+        G.forEach(function(item) {
+            item.dx = randomOffset(0, maxDist / 4);
+            item.dy = randomOffset(0, maxDist / 4);
+            item.r = randomOffset(maxDist, maxDist / 3);
+        });
+        dt = 0;
+        resized = false;
+    }
 };
 
 function mousemove(event) {
@@ -136,11 +157,12 @@ function shuffleArray(array) {
     gradientElement.id = 'gradientCanvas';
     document.body.appendChild(gradientElement);
     gradientContext = gradientElement.getContext('2d');
-    window.addEventListener('resize', updateMovingGradients, false);
+    window.addEventListener('resize', resizeCanvas, false);
     gradientElement.addEventListener('mouseenter', mousemove, false);
     gradientElement.addEventListener('mousemove', mousemove, false);
     initGradients();
     updateMovingGradients();
     setInterval(draw, 30);
+    setInterval(updateGradientParamsOnResize, resizeCheckInterval);
     initialized = true;
 })();
