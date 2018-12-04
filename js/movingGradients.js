@@ -19,6 +19,7 @@ var gradientContext;
 var gradientElement;
 var initialized = false;
 var resized = false;
+var rad2deg = 57.2957795131;
 
 //RGBY FOR WHEN nColors = 4
 var defaultColors = [['rgba(1,159,98,1)', 'rgba(1,159,98,0)'], ['rgba(255,1,136,1)', 'rgba(255,1,136,0)'], ['rgba(0,201,255,1)', 'rgba(0,201,255,0)'], ['rgba(228,199,0,1)', 'rgba(228,199,0,0)']];
@@ -150,16 +151,26 @@ function shuffleArray(array) {
     }
 };
 
+function getCSSLinearGradient(rect) {
+    var angle = 90 - Math.floor(rad2deg * Math.atan(rect.width / rect.height));
+    var topLeftColor = gradientContext.getImageData(rect.left, rect.top, 1, 1).data;
+    var bottomRightColor = gradientContext.getImageData(rect.right, rect.bottom, 1, 1).data;
+    topLeftColor[3] = 1;
+    bottomRightColor[3] = 1;
+    return '-webkit-linear-gradient(' + angle + 'deg, ' + 'rgb(' + topLeftColor + '), rgb(' + bottomRightColor + ')';
+}
+
 //initializer
 (function movingGradients() {
     if (initialized) updateMovingGradients();
     gradientElement = document.createElement('canvas');
     gradientElement.id = 'gradientCanvas';
+    gradientElement.setAttribute("style","z-index:-1; overflow: hidden; position: fixed;")
     document.body.appendChild(gradientElement);
     gradientContext = gradientElement.getContext('2d');
     window.addEventListener('resize', resizeCanvas, false);
-    gradientElement.addEventListener('mouseenter', mousemove, false);
-    gradientElement.addEventListener('mousemove', mousemove, false);
+    //gradientElement.addEventListener('mouseenter', mousemove, false);
+    document.addEventListener('mousemove', mousemove, false);
     initGradients();
     updateMovingGradients();
     setInterval(draw, 30);
