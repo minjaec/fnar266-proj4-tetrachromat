@@ -25,7 +25,7 @@
     }
 
     a {
-        text-decoration: none;
+        text-decoration: underline;
         color: white;
     }
 
@@ -43,7 +43,6 @@
     }
 
     h1 {
-        margin-top: 0;
         font-size: 3.998em;
     }
 
@@ -53,37 +52,159 @@
 
     h4 {font-size: 1.414em;}
 
+    h4 {font-size: 1.414em;}
+
     small, .font_small {font-size: 0.707em;}
 
 </style>
 
 <body>
     <script type="text/javascript" src='js/movingGradients.js'></script>
+    <script type="text/javascript" src='js/imageData_artworks.js'></script>
     <div id="main-container"></div>
-    <script> 
-        var doc = document.getElementById("main-container");
-        var title = document.createElement("h1");
-        title.innerHTML = 'tetrachromat'.link("#");
-        doc.appendChild(title);
-
+    <script>
         var pageElements = [];
-        pageElements.push(title);
-        
-        setInterval(updatePageElementColor, 30);
+        var doc;
+        var dAlpha = 0.08;
+        var minAlpha = 0.1;
+
+        setInterval(updatePageElementColor, 50);
+
+        function addPageElement(item, isMenu, action) {
+            addListeners(item);
+            if (isMenu) item.style.display = 'inline';
+            item.style.border = '1px solid transparent';
+            item.style.borderCollapse = 'no-collapse';
+            if (action == null) action = doNothing;
+            pageElements.push({
+                element: item,
+                alpha: minAlpha,
+                hover: false,
+                active: false,
+                isMenu: isMenu,
+                action: action
+            });
+            doc.appendChild(item);
+        }
+
+        function getPageElement(item) {
+            var i = 0;
+            while (1) {
+                if (pageElements[i].element == item) return pageElements[i];
+                i++;
+            }
+        }
+
+        (function initializePage() {
+            doc = document.getElementById("main-container");
+
+            var title = document.createElement("h1");
+            title.innerHTML = 'tetrachromat<br>';
+            addPageElement(title, true, location.reload.bind(location));
+
+            var about = document.createElement('h3');
+            about.innerHTML = 'about<br>';
+            addPageElement(about, true, showAbout);
+
+            var works = document.createElement('h3');
+            works.innerHTML = 'works<br>';
+            addPageElement(works, true, showWork)
+        })();
 
         function updatePageElementColor() {
-            pageElements.forEach(function(item) {
-                item.style.background = getCSSLinearGradient(item.getBoundingClientRect());
-                item.style.webkitBackgroundClip = 'text';
-                item.style.webkitTextFillColor = 'transparent';
-                //item.style.opacity = 0.5;
+            pageElements.forEach(function (item) {
+                if (item.active) {
+                    item.alpha = 1;
+                } else if (item.hover) {
+                    if (item.alpha < 0.6) item.alpha += dAlpha;
+                } else if (item.alpha > minAlpha) {
+                    item.alpha -= dAlpha;
+                }
+                if (item.isMenu) {
+                    item.element.style.background = getCSSLinearGradient(item.element.getBoundingClientRect());
+                    item.element.style.webkitBackgroundClip = 'text';
+                    item.element.style.webkitTextFillColor = 'rgba(255,255,255,' + item.alpha + ')';
+                }
+            });
+        };
+
+        function doNothing() {};
+
+        function addListeners(x) {
+            x.onmouseover = onmouseover;
+            x.onmouseleave = onmouseleave;
+            x.onclick = onclick;
+        };
+
+        function onmouseover(e) {
+            getPageElement(e.target).hover = true;
+        };
+
+        function onmouseleave(e) {
+            getPageElement(e.target).hover = false;
+        };
+
+        function onclick(e) {
+            var target = getPageElement(e.target);
+            if (target.action != doNothing) {
+                pageElements.forEach(function (item) {
+                    if (e.target != item.element) item.active = false;
+                });
+                var state = target.active;
+                target.active = !state;
+                target.action();
+            }
+        };
+
+        var aboutPage = null;
+
+        function showAbout() {
+            if (aboutPage != null) {
+                doc.removeChild(aboutPage);
+                removePageElement(aboutPage);
+                aboutPage = null;
+            } else {
+                aboutPage = document.createElement("div");
+                aboutPage.id = 'aboutPage'
+                aboutPage.style.paddingTop = '20px';
+                aboutPage.style.textAlign = 'left';
+                aboutPage.style.display = 'block';
+                aboutPage.style.webkitTextFillColor = 'rgba(255,255,255,0.8)';
+                aboutPage.innerHTML = '<h4>an exhibition by tauba auerbach</h4>\
+                <p>november 11 – december 22, 2011<br>bergen kunsthall<br>\
+                <br>In Tauba Auerbach’s work traditional distinctions between image, dimensionality and content collapse. Surface, specifically the larger issues surrounding topo¬logy, has been a central concern in her recent paintings, drawings, photographs and artist books. Auerbach interweaves discordant positions such as disorder and order, readability and abstraction, permeability and solidity – phenomena that are usually viewed as incompatible – into unified surfaces and volumes.<br><br>\
+                <a href="http://www.kunsthall.no/en/?k=1&id=26&aid=1119&ark=1&aar=2011&arrtID=6&ArrLokID=1&index=6">read more</a><br><br>\
+                Tauba Auerbach (b. 1981) lives and works in New York. Her recent solo exhibitions include The W Axis at Standard (Oslo), Here and Now/And Nowhere at Deitch Projects, New York, Passengers at the CCA Wattis Institute for Contemporary Art, San Francisco, and The Answer/Wasn’t Here at the Jack Hanley Gallery, San Francisco. Her work has been included in Greater New York, PS1 MoMA, New York; 2010 The Whitney Biennial, Whitney Museum of American Art, New York; Exhibition Exhibition, Castello De Rivoli and “Younger Than Jesus”, New Museum, New York.<br><br>\
+                <a href="https://taubaauerbach.com/">artist website</a></p>';
+                addPageElement(aboutPage, false, null);
+                pageElements[0].active = true;
+                // setTimeout(function () {
+                //     page = document.getElementById('aboutPage');
+                // }, 1000);
+            }
+        };
+
+        function showWork() {
+            if (aboutPage != null) {
+                doc.removeChild(aboutPage);
+                removePageElement(aboutPage);
+                aboutPage = null;
+            }
+            pageElements[0].active = true;
+            
+            console.log('work');
+        };
+
+        function removePageElement(item) {
+            var value = getPageElement(item);
+            pageElements = pageElements.filter(function (item) {
+                return item != value
             });
         }
 
         //fade in and out of existence
 
         //move about randomly
-        
     </script>
 </body>
 
