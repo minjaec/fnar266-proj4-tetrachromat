@@ -193,6 +193,14 @@
 
 
         function showAbout() {
+            if (carousel != null) {
+                flckty.destroy();
+                doc.removeChild(carousel);
+                doc.removeChild(description);
+                removePageElement(carousel);
+                carousel = null;
+                useDefaultColors();
+            }
             if (aboutPage != null) {
                 doc.removeChild(aboutPage);
                 removePageElement(aboutPage);
@@ -225,26 +233,34 @@
                 removePageElement(aboutPage);
                 aboutPage = null;
             }
-            carousel = document.createElement("div");
-            carousel.className = 'carousel';
-            carousel.innerHTML = getImageDivs();
-            // if (carousel = null) initCarousel()
-            addPageElement(carousel, false, null);
-
-            description = document.createElement("div");
-            description.style.color = 'white';
-            addPageElement(description, false, null);
-            flckty = new Flickity(carousel, {imagesLoaded: true,
-                                            lazyLoad: 2,
-                                            cellAlign: 'left',
-                                            pageDots: false,
-                                            wrapAround: true});
-            imageUpdate();
-            pageElements[0].active = true;
-            flckty.on('change', imageUpdate);
+            if (carousel == null) {
+                carousel = document.createElement("div");
+                carousel.className = 'carousel';
+                carousel.innerHTML = getImageDivs();
+                addPageElement(carousel, false, null);
+                description = document.createElement("div");
+                description.style.color = 'white';
+                addPageElement(description, false, null);
+                flckty = new Flickity(carousel, {imagesLoaded: true,
+                                                lazyLoad: 2,
+                                                cellAlign: 'left',
+                                                pageDots: false,
+                                                wrapAround: true});
+                pageElements[0].active = true;
+                flckty.on('change', imageUpdate);
+                imageUpdate(true);
+            } else {
+                flckty.destroy();
+                doc.removeChild(carousel);
+                doc.removeChild(description);
+                removePageElement(carousel);
+                useDefaultColors();
+                carousel = null;
+            }
         };
 
-        function imageUpdate() {
+        function imageUpdate(initial) {
+            getImageColors(flckty.selectedElement);
             getImageColors(flckty.selectedElement);
             description.innerHTML = '<p style="font-weight:700">'+flckty.selectedElement.alt+'</p>\
                                     <p style="max-width:50vh">'+flckty.selectedElement.attributes.desc.value+'</p>';
