@@ -117,8 +117,24 @@ function draw() {
     })
 };
 
-function getImageColors(image) {
-    var colorthief = ColorThief();
+
+function getImageColors(sourceImage) {
+    imagePalette = [];
+    var colorThief = new ColorThief();
+    var colorthief_palette = colorThief.getPalette(sourceImage, nColors);
+    for (var i = 0; i < colorthief_palette.length; i++) {
+        var r = colorthief_palette[i][0];
+        var g = colorthief_palette[i][1];
+        var b = colorthief_palette[i][2];
+        var colors = ['rgba(' + r + ',' + g + ',' + b + ',' + 1 + ')', 'rgba(' + r + ',' + g + ',' + b + ',' + 0 + ')'];
+        imagePalette.push(colors);
+    }
+    useImagePalette = true;
+}
+
+function useDefaultColors() {
+    useImagePalette = false;
+    imagePalette = [];
 }
 
 //color related functions

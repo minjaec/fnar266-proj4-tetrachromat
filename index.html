@@ -102,6 +102,8 @@
         var dAlpha = 0.08;
         var minAlpha = 0.1;
         var flckty = null;
+        var carousel;
+        var aboutPage;
 
         setInterval(updatePageElementColor, 50);
 
@@ -121,10 +123,8 @@
         }
 
         function getPageElement(item) {
-            var i = 0;
-            while (1) {
+            for(var i = 0; i < pageElements.length; i++) {
                 if (pageElements[i].element == item) return pageElements[i];
-                i++;
             }
         }
 
@@ -170,15 +170,18 @@
         };
 
         function onmouseover(e) {
-            getPageElement(e.target).hover = true;
+            var target = getPageElement(e.target);
+            if(target) target.hover = true;
         };
 
         function onmouseleave(e) {
-            getPageElement(e.target).hover = false;
+            var target = getPageElement(e.target);
+            if(target) target.hover = false;
         };
 
         function onclick(e) {
             var target = getPageElement(e.target);
+            if(!target) return;
             if (target.action != doNothing) {
                 pageElements.forEach(function (item) {
                     if (e.target != item.element) item.active = false;
@@ -189,7 +192,6 @@
             }
         };
 
-        var aboutPage = null;
 
         function showAbout() {
             if (aboutPage != null) {
@@ -218,8 +220,6 @@
             }
         };
 
-        var carousel;
-
         function showWork() {
             if (aboutPage != null) {
                 doc.removeChild(aboutPage);
@@ -236,8 +236,11 @@
                                             cellAlign: 'left',
                                             pageDots: false,
                                             wrapAround: true});
-            caption = document.querySelector('.caption');
+            getImageColors(flckty.selectedElement);
             pageElements[0].active = true;
+            flckty.on('change', function() {
+                getImageColors(flckty.selectedElement);
+            });
         };
 
         function getImageDivs() {
