@@ -133,8 +133,22 @@
 
             var title = document.createElement("h1");
             title.innerHTML = 'tetrachromat<br>';
-            addPageElement(title, true, function() {
-                if (carousel != null) {
+            addPageElement(title, true, function () {
+                resetPages();
+                updateMovingGradients();
+            });
+
+            var about = document.createElement('h3');
+            about.innerHTML = 'about<br>';
+            addPageElement(about, true, showAbout);
+
+            var works = document.createElement('h3');
+            works.innerHTML = 'works<br>';
+            addPageElement(works, true, showWork)
+        })();
+
+        function resetPages() {
+            if (carousel != null) {
                 flckty.destroy();
                 doc.removeChild(carousel);
                 doc.removeChild(description);
@@ -147,18 +161,7 @@
                     removePageElement(aboutPage);
                     aboutPage = null;
                 }
-                updateMovingGradients();
-            });
-            //refresh
-
-            var about = document.createElement('h3');
-            about.innerHTML = 'about<br>';
-            addPageElement(about, true, showAbout);
-
-            var works = document.createElement('h3');
-            works.innerHTML = 'works<br>';
-            addPageElement(works, true, showWork)
-        })();
+        }
 
         function updatePageElementColor() {
             pageElements.forEach(function (item) {
@@ -238,9 +241,6 @@
                 <a href="https://taubaauerbach.com/">artist website</a></p>';
                 addPageElement(aboutPage, false, null);
                 pageElements[0].active = true;
-                // setTimeout(function () {
-                //     page = document.getElementById('aboutPage');
-                // }, 1000);
             }
         };
 
