@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>tetrachromat</title>
 </head>
-
+<link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
 <style>
     @import url('https://fonts.googleapis.com/css?family=Muli:300,400,700');
 
@@ -18,8 +18,8 @@
     #main-container {
         top: 0;
         left: 0;
-        height: 90%;
-        width: 90%;
+        height: 100vh;
+        width: 100vh;
         padding: 5%;
         z-index: 1;
     }
@@ -56,25 +56,71 @@
 
     small, .font_small {font-size: 0.707em;}
 
+    .carousel {
+        background: transparent;
+        max-width: 50vh;
+    }
+
+    .carousel-image {
+        background: transparent;
+        display: block;
+        min-height: 500px;
+        height: 50vh;
+        /* set min-width, allow images to set cell width */
+        min-width: 150px;
+        max-width: 100%;
+        margin-right: 10px;
+        margin-top: 15px;
+        /* vertically center */
+        top: 50%;
+        transform: translateY(-50%)
+    }
+
+    .carousel.is-fullscreen .carousel-image {
+        height: auto;
+        max-height: 100%;
+    }
+
+    .caption {
+        background: transparent;
+        color: black;
+        margin: 0;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .flickity-button {
+    position: absolute;
+    background: transparent;
+    border: none;
+    color: #333;
+    }
+
+    .flickity-prev-next-button.previous {
+        display:none;
+    }
+
+
 </style>
 
 <body>
+    <script src="https://unpkg.com/flickity@2/dist/flickity.pkgd.min.js"></script>
     <script type="text/javascript" src='js/movingGradients.js'></script>
     <script type="text/javascript" src='js/imageData_artworks.js'></script>
+    <script type="text/javascript" src='js/siema.min.js'></script>
     <div id="main-container"></div>
     <script>
         var pageElements = [];
         var doc;
         var dAlpha = 0.08;
         var minAlpha = 0.1;
+        var flckty = null;
 
         setInterval(updatePageElementColor, 50);
 
         function addPageElement(item, isMenu, action) {
             addListeners(item);
             if (isMenu) item.style.display = 'inline';
-            item.style.border = '1px solid transparent';
-            item.style.borderCollapse = 'no-collapse';
             if (action == null) action = doNothing;
             pageElements.push({
                 element: item,
@@ -170,7 +216,8 @@
                 aboutPage.style.textAlign = 'left';
                 aboutPage.style.display = 'block';
                 aboutPage.style.webkitTextFillColor = 'rgba(255,255,255,0.8)';
-                aboutPage.innerHTML = '<h4>an exhibition by tauba auerbach</h4>\
+                aboutPage.innerHTML =
+                    '<h4>an exhibition by tauba auerbach</h4>\
                 <p>november 11 – december 22, 2011<br>bergen kunsthall<br>\
                 <br>In Tauba Auerbach’s work traditional distinctions between image, dimensionality and content collapse. Surface, specifically the larger issues surrounding topo¬logy, has been a central concern in her recent paintings, drawings, photographs and artist books. Auerbach interweaves discordant positions such as disorder and order, readability and abstraction, permeability and solidity – phenomena that are usually viewed as incompatible – into unified surfaces and volumes.<br><br>\
                 <a href="http://www.kunsthall.no/en/?k=1&id=26&aid=1119&ark=1&aar=2011&arrtID=6&ArrLokID=1&index=6">read more</a><br><br>\
@@ -184,16 +231,43 @@
             }
         };
 
+        var carousel;
+        var caption;
+
+        flckty.on('select', function() {
+            // set image caption using img's alt
+            caption.textContent = flckty.selectedElement.alt;
+        });
+
         function showWork() {
             if (aboutPage != null) {
                 doc.removeChild(aboutPage);
                 removePageElement(aboutPage);
                 aboutPage = null;
             }
+            carousel = document.createElement("div");
+            carousel.className = 'carousel';
+            carousel.innerHTML = getImageDivs();
+            // if (carousel = null) initCarousel()
+            addPageElement(carousel, false, null);
+            flckty = new Flickity(carousel, {imagesLoaded: true,
+                                            lazyLoad: true,
+                                            cellAlign: 'left',
+                                            percentPosition: false,
+                                            pageDots: false});
+            caption = document.querySelector('.caption');
             pageElements[0].active = true;
-            
-            console.log('work');
         };
+
+        function getImageDivs() {
+            var divHTML = '';
+            var i;
+            for(i = 0; i < imageData.length; i++) {
+                divHTML += '<img class="carousel-image" data-flickity-lazyload="images/'+imageData[i].filename+'" '+' alt="'+imageData[i].title+'" />\n';
+            }
+            divHTML += '<p class="caption">&nbsp;</p>';
+            return divHTML;
+        }
 
         function removePageElement(item) {
             var value = getPageElement(item);
