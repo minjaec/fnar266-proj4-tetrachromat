@@ -74,19 +74,7 @@
         /* vertically center */
         top: 50%;
         transform: translateY(-50%)
-    }
-
-    .carousel.is-fullscreen .carousel-image {
-        height: auto;
-        max-height: 100%;
-    }
-
-    .caption {
-        background: transparent;
-        color: black;
-        margin: 0;
-        padding: 10px;
-        text-align: center;
+        
     }
 
     .flickity-button {
@@ -99,7 +87,6 @@
     .flickity-prev-next-button.previous {
         display:none;
     }
-
 
 </style>
 
@@ -232,12 +219,6 @@
         };
 
         var carousel;
-        var caption;
-
-        flckty.on('select', function() {
-            // set image caption using img's alt
-            caption.textContent = flckty.selectedElement.alt;
-        });
 
         function showWork() {
             if (aboutPage != null) {
@@ -251,10 +232,10 @@
             // if (carousel = null) initCarousel()
             addPageElement(carousel, false, null);
             flckty = new Flickity(carousel, {imagesLoaded: true,
-                                            lazyLoad: true,
+                                            lazyLoad: 2,
                                             cellAlign: 'left',
-                                            percentPosition: false,
-                                            pageDots: false});
+                                            pageDots: false,
+                                            wrapAround: true});
             caption = document.querySelector('.caption');
             pageElements[0].active = true;
         };
@@ -265,7 +246,6 @@
             for(i = 0; i < imageData.length; i++) {
                 divHTML += '<img class="carousel-image" data-flickity-lazyload="images/'+imageData[i].filename+'" '+' alt="'+imageData[i].title+'" />\n';
             }
-            divHTML += '<p class="caption">&nbsp;</p>';
             return divHTML;
         }
 
