@@ -175,8 +175,11 @@ function shuffleArray(array) {
 
 function getCSSLinearGradient(rect) {
     var angle = 90 - Math.floor(rad2deg * Math.atan(rect.width / rect.height));
-    var topLeftColor = gradientContext.getImageData(rect.left, rect.top, 1, 1).data;
-    var bottomRightColor = gradientContext.getImageData(rect.right, rect.bottom, 1, 1).data;
+    var topLeftColor, bottomRightColor;
+    if(rect.top < 0 || rect.left < 0) topLeftColor = [255, 255, 255, 1];
+    else topLeftColor = gradientContext.getImageData(rect.left, rect.top, 1, 1).data;
+    if(rect.right > window.width || rect.bottom > window.height) bottomRightColor = [255, 255, 255, 1];
+    else bottomRightColor = gradientContext.getImageData(rect.right, rect.bottom, 1, 1).data;
     topLeftColor[3] = 1;
     bottomRightColor[3] = 1;
     return '-webkit-linear-gradient(' + angle + 'deg, ' + 'rgb(' + topLeftColor + '), rgb(' + bottomRightColor + ')';

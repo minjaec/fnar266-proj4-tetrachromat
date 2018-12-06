@@ -22,6 +22,7 @@
         width: 100vh;
         padding: 5%;
         z-index: 1;
+        color: white;
     }
 
     a {
@@ -132,7 +133,23 @@
 
             var title = document.createElement("h1");
             title.innerHTML = 'tetrachromat<br>';
-            addPageElement(title, true, location.reload.bind(location));
+            addPageElement(title, true, function() {
+                if (carousel != null) {
+                flckty.destroy();
+                doc.removeChild(carousel);
+                doc.removeChild(description);
+                removePageElement(carousel);
+                carousel = null;
+                useDefaultColors();
+                }
+                if (aboutPage != null) {
+                    doc.removeChild(aboutPage);
+                    removePageElement(aboutPage);
+                    aboutPage = null;
+                }
+                updateMovingGradients();
+            });
+            //refresh
 
             var about = document.createElement('h3');
             about.innerHTML = 'about<br>';
@@ -248,7 +265,7 @@
                                                 wrapAround: true});
                 pageElements[0].active = true;
                 flckty.on('change', imageUpdate);
-                imageUpdate(true);
+                setTimeout(imageUpdate, 500);
             } else {
                 flckty.destroy();
                 doc.removeChild(carousel);
